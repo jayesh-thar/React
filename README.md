@@ -1,7 +1,7 @@
-### Basic of React and Hook's
+# Basic of React and Hook's
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# How react how?
+### How react how?
 - Whenever state or props change, React re-renders the component, compares the previous and next UI representations through reconciliation, and applies the necessary changes to the real DOM. The browser then displays the updated UI.
 
 The simple workflow is:
@@ -14,7 +14,7 @@ The simple workflow is:
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# Props vs State:
+### Props vs State:
 - Basically props is used to passing data from one component to other where there is one parent component and we pass data to it's child component 
 where State is used to store data that can change over time, mean that store a mutable data
 
@@ -53,7 +53,7 @@ export default App;
 -> `Props are used to pass data between components, while state manages data that changes over time and affects the UI.`
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# lazy loading: loading a component or resource only when it needed, instead of loading everything at the beginning.
+#### lazy loading: loading a component or resource only when it needed, instead of loading everything at the beginning.
 
 - Reduces the amount of code or resources needed initially.
 - Can improve initial loading speed.
@@ -71,8 +71,7 @@ laxy loading mean: loading or rendering the compoenet in ui interface when it ne
 
 
 ----------------------------------------------------------------------------------------------------
-# useState:
-useState is a React Hook that allows functional components to manage and persist state variables that change over time, such as user input or UI toggles. 
+### useState: useState is a React Hook that allows functional components to manage and persist state variables that change over time, such as user input or UI toggles. 
 
 CODE: 
 ```
@@ -116,7 +115,7 @@ setProducts(previousProducts => [
 
 ----------------------------------------------------------------------------------------------------
 
-# useEffect: 
+### useEffect: 
 - react hook that let functional component to perform side effect after rendering/(mounting), such as fetching data, updating the DOM and etc
 - it's take 2 argument:
 	1. function: what effect u want to perform | side-effect logic
@@ -176,10 +175,11 @@ export default Products;
 
 NOTE:
 
-	@ Code:					@ When it runs:
-useEffect(() => { ... })		After every committed render
-useEffect(() => { ... }, [])		After the initial mount
-useEffect(() => { ... }, [userId])	After the initial mount and when userId changes
+| Code | When it runs |
+|---|---|
+| `useEffect(() => { ... })` | After every committed render |
+| `useEffect(() => { ... }, [])` | After the initial mount |
+| `useEffect(() => { ... }, [userId])` | After the initial mount and when `userId` changes |
 
 ```
 import { useState, useEffect } from "react";
@@ -211,7 +211,7 @@ Click Reset		Count is now: 0
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
-# useContext:
+### useContext:
 -> it allow  component to read shared data without passing the props at every level 
 -> read a value from a context with out prop drilling:
 -> it return the object with one parameter of current value:
@@ -297,7 +297,7 @@ App (File 1)
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# useRef: 
+### useRef: 
 - it let component to store value(mutable) without causing a re-render when that value changes.
 - commonly use when Accessing DOM elements directly, such as focusing an input & Remembering values that should not trigger a UI update, such as a timer ID.
 
@@ -360,7 +360,7 @@ RE-RENDERED!
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# useMemo: that caches the result of calculation so it only re-render when the dependencies changes.
+### useMemo: that caches the result of calculation so it only re-render when the dependencies changes.
 - It caches the result of a calculation to avoid unnecessary recalculations.
 - Commonly used for expensive calculations, such as filtering or sorting large lists.
 
@@ -369,7 +369,7 @@ const result = useMemo(() => calculateValue(), [dependencies]);
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-useCallback
+### useCallback: that caches the functions
 - It caches a function reference between renders until its dependencies change.
 - Commonly used when passing functions to memoized child components to avoid unnecessary re-renders.
 
