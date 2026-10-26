@@ -537,7 +537,20 @@ function UserProfile({ userId }) {
 
 React itself creates the Virtual DOM. When a component renders, React calls the component function, collects the returned JSX (compiled to React.createElement() calls), and assembles a tree of plain JavaScript objects in memory.  Each node is a lightweight object like:
 ```
-{ type: "div", props: { className: "app" }, children: [...] }
+{
+  type: 'div',
+  props: { className: 'card' },
+  children: [
+    {
+      type: 'h2',
+      props: { children: 'Title' }
+    },
+    {
+      type: 'p',
+      props: { children: 'Price: $29.99' }
+    }
+  ]
+}   
 ```
 This happens on every render — both initial mount and every re-render triggered by state/props changes.
 
