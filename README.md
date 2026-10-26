@@ -73,6 +73,11 @@ laxy loading mean: loading or rendering the compoenet in ui interface when it ne
 
 ---
 ### Props drilling: Passing props through multiple layers of components
+
+- **Props drilling** means passing props through multiple layers of components, even when some middle components do not need that data.
+- It happens when a parent passes data to a child, and that child passes the same data to another child.
+- **Solution:** Context API can help when many components need the same shared data.
+
 ---
 
 ----------------------------------------------------------------------------------------------------
@@ -390,86 +395,325 @@ Note:
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Closure (JS Concpet):
+- A **closure** happens when a function remembers variables from the scope where it was created, even after that outer function has finished running.
+- In simple words, a function can still access the variables around it.
 
+EX: 
+```js
+function outer() {
+  let count = 0;
 
+  return function inner() {
+    count++;
+    console.log(count);
+  };
+}
 
+const counter = outer();
 
+counter(); // 1
+counter(); // 2
+```
 
+- `inner()` remembers the `count` variable from `outer()`.
+- This is a closure.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+---
+
+### Higher-Order Component (HOC)
+
+- A higher-order function in JavaScript is a function that takes one or more functions as arguments or returns a function as its result.
+- In React we have Function Component. So, functions that take a component as an argument and return a new.
+- It give Reusability(allow developers to reuse component logic across multiple components without duplicating code) 
+  
+Simple example:
+
+```jsx
+function withMessage(Component) {
+  return function EnhancedComponent() {
+    return <Component message="Hello!" />;
+  };
+}
+```
+
+Usage:
+
+```jsx
+function Greeting({ message }) {
+  return <h1>{message}</h1>;
+}
+
+const GreetingWithMessage = withMessage(Greeting);
+```
+
+- `withMessage` receives a component and returns a new component.
+- The returned component passes an extra prop called `message`.
+
+---
+
+### Component Lifecycle
+
+- in React refers to the series of phases a component goes through from creation to destruction.
+
+> There are three main phases:
+1. Mounting: The component is created and inserted into the DOM for the first time. 
+2. Updating: Triggered whenever props or state change, causing a re-render. Can happen multiple times.
+3. Unmounting: The component is removed from the DOM.
+
+- In function components, Hooks such as `useEffect` are commonly used to synchronize with external systems and clean them up.
+- Class components have lifecycle methods such as `componentDidMount`, `componentDidUpdate`, and `componentWillUnmount`.
+
+`Key takeaway: Mounting happens once, updating can happen many times, and unmounting happens once when the component is removed. In functional components, useEffect with its dependency array and cleanup function covers all three phases in a single API.`
+
+---
+
+#### Custom Hook
+-  It's a JavaScript function whose name starts with use that reuses stateful logic across multiple components.  It composes built-in hooks (useState, useEffect, etc.) and returns whatever the consuming component needs.
+
+> Rules
+1. Name must start with use + capital letter (e.g., useFetch, useCounter)
+2. Only call at the top level of a component or another hook — never inside conditions, loops, or callbacks
+3. Only call from function components or other custom hooks 
+
+How to Create One
+Step 1 — Create a file (e.g., useFetch.js):
+```
+import { useState, useEffect } from "react";
+
+export function useFetch(url) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!url) return;
+    const controller = new AbortController();
+
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+        setData(await res.json());
+      } catch (err) {
+        if (err.name !== "AbortError") setError(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+    return () => controller.abort();
+  }, [url]);
+
+  return { data, loading, error };
+}
+```
+
+Step 2 — Use it in any component:
+```
+function UserProfile({ userId }) {
+  const { data, loading, error } = useFetch(`/api/users/${userId}`);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  return <h1>{data.name}</h1>;
+}
+```
+> When to Use
+- Logic is reused across 2+ components
+- A single component's logic is getting too long
+- You want to isolate side effects (subscriptions, timers, API calls) for testability
+
+`This is the modern replacement for Higher-Order Components — instead of wrapping a component, you call a hook inside it.`
+
+---
+
+### Virtual DOM
+- in-memory representation of what the UI should look like.
+
+React itself creates the Virtual DOM. When a component renders, React calls the component function, collects the returned JSX (compiled to React.createElement() calls), and assembles a tree of plain JavaScript objects in memory.  Each node is a lightweight object like:
+```
+{ type: "div", props: { className: "app" }, children: [...] }
+```
+This happens on every render — both initial mount and every re-render triggered by state/props changes.
+
+### Is It Destroyed After the Real DOM Update?
+No — the current Virtual DOM persists in memory. 
+
+``` life cycle
+State change
+     │
+     ▼
+New Virtual DOM tree is created (in memory)
+     │
+     ▼
+React diffs: New VDOM vs Old VDOM (the previous snapshot)
+     │
+     ▼
+Minimal changes applied to Real DOM
+     │
+     ▼
+New VDOM becomes the "current" snapshot (stored in memory)
+Old VDOM is no longer referenced → garbage collected
+```
+
+NOTE THAT:
+`So the Virtual DOM is not a one-time thing that gets thrown away after painting.  It lives persistently in memory (internally represented by React's Fiber tree) and is replaced on each re-render — the old version is what gets garbage collected, not the new one.`
+
+---
+
+### SSR vs CSR
+CSR: Browser builds the page. 
+SSR: Server builds the page. 
+
+```
+CSR:  Browser → JavaScript → Data → UI
+SSR:  Server → Data → HTML → Browser → Hydration
+```
+
+In CSR:
+```
+Browser requests page
+       │
+       ▼
+Server sends: <div id="root"></div> + big JS bundle
+       │
+       ▼
+Browser downloads & executes JS
+       │
+       ▼
+JS fetches data from API
+       │
+       ▼
+JS builds DOM → User sees content
+```
+
+Best for: Dashboards, admin panels, logged-in apps, SPAs where SEO doesn't matter.
+
+
+In SSR: 
+```
+Browser requests page
+       │
+       ▼
+Server runs React code → generates full HTML
+       │
+       ▼
+Server sends: <div id="root"><h1>Actual Content</h1>...</div> + JS bundle
+       │
+       ▼
+Browser shows content IMMEDIATELY
+       │
+       ▼
+JS downloads → "Hydration" (attaches event listeners)
+       │
+       ▼
+Page becomes interactive
+```
+
+Best
+for: E-commerce, blogs, landing pages, job portals — anything where SEO + fast first paint matter. 
+
+### What is "Hydration"?
+After SSR sends the HTML, the browser still needs to make it interactive.  Hydration is the process where React:
+
+1. Downloads the JS bundle
+2. Walks the existing DOM
+3. Attaches event listeners, initializes state
+4. Takes over rendering for future updates
+
+That's why SSR pages feel "alive" after a brief moment — the HTML was there first, then JS "woke it up."
+
+`RSC lets you mark specific components as "use server" — they never ship JS to the client.  They're rendered on the server and streamed as a serialized payload. This is the modern direction in Next.js 13/14/15, complementing (not replacing) SSR and CSR.`
+
+
+---
+
+### Routing and React Router
+
+- **Routing** means deciding which page or UI to show based on the URL.
+- **React Router** is a library that lets React applications handle navigation between routes without requiring a full page reload for every navigation.
+
+Example:
+
+```jsx
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+
+function Home() {
+  return <h1>Home Page</h1>;
+}
+
+function About() {
+  return <h1>About Page</h1>;
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+- `/` displays the Home component.
+- `/about` displays the About component.
+- `Link` lets users navigate between routes.
+
+
+---
+
+### React Testing Library and Unit Testing
+
+- **Testing** checks whether code behaves as expected.
+- **Unit testing** checks a small piece of code or behavior in isolation.
+- **React Testing Library (RTL)** helps test React components by interacting with them in ways similar to how users do.
+
+Example test:
+
+```jsx
+import { render, screen } from "@testing-library/react";
+import { expect, test } from "vitest";
+import App from "./App";
+
+test("shows the count button", () => {
+  render(<App />);
+  expect(screen.getByRole("button")).toBeInTheDocument();
+});
+```
+
+- `render()` renders the component for testing.
+- `screen.getByRole()` finds an element by its accessible role.
+- `toBeInTheDocument()` checks that the element exists in the rendered UI.
+- This example uses Vitest and assumes the appropriate testing setup and `jest-dom` matchers are configured.
+
+
+---
+
+### What Is a Bundler?
+
+- A **bundler** takes your app's modules and related resources and combines or organizes them into files that can be served to the browser.
+- It can also transform code, handle assets, and optimize files for production.
+- Examples include **Vite** (which uses different tools for development and production builds), **Webpack**, and **esbuild**.
+
+In simple words, a bundler prepares your application's code and resources so the browser can load them efficiently.
+
+
+---
 
 
 
