@@ -69,6 +69,11 @@ laxy loading mean: loading or rendering the compoenet in ui interface when it ne
 - if al once loading then user data gone + very slow and not afficient also
 ```
 
+----------------------------------------------------------------------------------------------------
+
+---
+### Props drilling: Passing props through multiple layers of components
+---
 
 ----------------------------------------------------------------------------------------------------
 ### useState: useState is a React Hook that allows functional components to manage and persist state variables that change over time, such as user input or UI toggles. 
