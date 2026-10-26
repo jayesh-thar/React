@@ -41,6 +41,9 @@ const [count, setCount] = useState(0);
 **Setter:** The function that requests a state update, e.g. `setCount`.
 
 ## 5. What is `useEffect`?
+
+useEffect is a React Hook that lets you perform side effects in functional components, such as fetching data, updating the DOM, or setting up subscriptions. It runs after the component renders, allowing you to synchronize the component with external systems without blocking the UI. 
+
 `useEffect` synchronizes a component with external systems, such as APIs, timers, or event listeners.
 
 ```jsx
